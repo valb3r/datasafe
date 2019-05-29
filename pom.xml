@@ -13,9 +13,10 @@
         <module>datasafe-inbox</module>
         <module>datasafe-storage</module>
         <module>datasafe-business</module>
-
-        <!-- done as last to get a nice codecoverage, see data-business/pom.xml -->
         <module>datasafe-rest-impl</module>
+
+        <!-- done as last to get a nice codecoverage -->
+        <module>last-module-codecoverage</module>
     </modules>
 
     <groupId>de.adorsys</groupId>
