@@ -7,14 +7,6 @@ script:
   - mvn --settings .travis/settings.xml clean verify -B -V -DAWS_BUCKET=${AWS_BUCKET}
 
 deploy:
-  - provider: openshift
-    user: $OPENSHIFT_USER
-    password: $OPENSHIFT_PASSWORD
-    domain: $OPENSHIFT_DOMAIN
-    app: datasafe-rest-service
-    on:
-      branch: develop
-
   - provider: script
     skip_cleanup: true
     script: /bin/bash .travis/deploy.sh
@@ -25,3 +17,11 @@ deploy:
 after_success:
   - bash <(curl -s https://codecov.io/bash) -f '!*datasafe-business*' -F unittests
   - bash <(curl -s https://codecov.io/bash) -f '*datasafe-business*' -F e2e_tests
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhook-proxy-datasafe.cloud.adorsys.de/travis-ci/openshift.adorsys.de/datasafe/datasafe-rest-service
+    on_success: always
+    on_failure: never
+    on_start: never
