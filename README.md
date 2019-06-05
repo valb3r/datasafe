@@ -45,7 +45,7 @@ that supports versioned and encrypted private file storage (for storage provider
 ## Storing private files
 
 <details>
-![How it works diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/valb3r/datasafe/develop/docs/diagrams/high-level/how_it_works_private.puml&fmt=svg&vvv=1&sanitize=true)
+[How it works diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/valb3r/datasafe/develop/docs/diagrams/high-level/how_it_works_private.puml&fmt=svg&vvv=1&sanitize=true)
 </details>
 
 [See for details](datasafe-privatestore)
@@ -53,7 +53,7 @@ that supports versioned and encrypted private file storage (for storage provider
 ## Sharing files with another user
  
 <details>
-![How it works diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/valb3r/datasafe/develop/docs/diagrams/high-level/how_it_works_inbox.puml&fmt=svg&vvv=1&sanitize=true)
+[How it works diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/valb3r/datasafe/develop/docs/diagrams/high-level/how_it_works_inbox.puml&fmt=svg&vvv=1&sanitize=true)
 </details>
 
 [See for details](datasafe-inbox)
