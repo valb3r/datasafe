@@ -6,6 +6,7 @@
 
     <modules>
         <module>datasafe-types-api</module>
+        <module>datasafe-dagger-tree</module>
         <module>datasafe-business</module>
         <module>datasafe-metainfo</module>
         <module>datasafe-privatestore</module>
