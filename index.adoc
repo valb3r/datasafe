@@ -1,0 +1,24 @@
+= Datasafe - secure client side data encryption and storage
+//:author: Adorsys
+:revnumber: 0.6.0
+:revdate: 2019-08-26
+:toc: left
+:numbered:
+:toclevels: 2
+:toc-title: Features
+:source-highlighter: coderay
+:icons: font
+:imagesdir: images
+
+[link=https://github.com/adorsys/datasafe]
+image::https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png[Fork me on GitHub,float="right"]
+++++
+<iframe src="https://ghbtns.com/github-btn.html?user=adorsys&repo=datasafe&type=star&count=true" frameborder="0" scrolling="0" width="170px" height="20px" style="float:right"></iframe>
+++++
+
+[quote]
+Encrypt your documents with Datasafe
+
+image:logo/datasafe.svg[Datasafe, secure data storage,width=800]
+
+== Introduction
