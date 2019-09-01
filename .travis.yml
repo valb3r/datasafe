@@ -1,5 +1,7 @@
 # Using bash because Travis CI does not support Java on Windows
 
+sudo: required
+
 branches:
   except:
     - gh-pages
