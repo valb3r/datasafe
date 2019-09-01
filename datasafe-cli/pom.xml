@@ -153,6 +153,7 @@
                         <configuration>
                             <imageName>datasafe-cli</imageName>
                             <buildArgs>
+                                
                                 --no-fallback
                                 --enable-all-security-services
                                 --features=de.adorsys.datasafe.cli.hacks.GraalCompileFixNpeOnMissingServiceTypeInKnownProviders
