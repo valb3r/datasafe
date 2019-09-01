@@ -42,7 +42,7 @@ build-cli: &build-cli
     - /bin/bash .travis/enable_bouncycastle_security.sh
     # Build native image, no settings.xml needed
     # - ./mvnw -f datasafe-cli/pom.xml clean package -B -V -Pnative-image -DskipTests
-    - .travis/native-image-windows.sh
+    - /bin/bash .travis/native-image-windows.sh
 
 # CLI artifacts publishing:
 deploy-cli: &deploy-cli
