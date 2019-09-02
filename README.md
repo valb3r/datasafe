@@ -30,6 +30,23 @@ capability too.
 -  File names are encrypted
 -  Thorough testing
 
+## Quick demo
+### Datasafe-CLI
+You can try Datasafe as a CLI (command-line-interface) executable for encryption of your own sensitive files. 
+They can be saved either in S3 bucket or local filesystem 
+(they are currently built from *feature/datasafe-cli-w-s3* branch). 
+
+**Download CLI executable**:
+
+1. [MacOS executable](https://github.com/adorsys/datasafe/releases/download/v0.6.0/datasafe-cli-osx-x64)
+1. [Linux executable](https://github.com/adorsys/datasafe/releases/download/v0.6.0/datasafe-cli-linux-x64)
+1. Windows executable
+1. Java-based executable, jar, requires JRE (1.8+), use `java -jar datasafe-cli.jar` to execute
+
+### REST based demo
+[Here](datasafe-rest-impl/DEMO.md) you can find quick demo of project capabilities with instructions how to use it.
+
+
 ## Building project
 Without tests:
 ```bash
@@ -39,22 +56,6 @@ Full build:
 ```bash
 mvn clean install
 ```
-
-## Quick demo
-### Datasafe-CLI
-You can try Datasafe as a CLI (command-line-interface) executable for encryption of your own sensitive files. 
-They can be saved either in S3 bucket or local filesystem 
-(they are currently built from *feature/datasafe-cli-w-s3* branch). 
-
-**Download CLI executable**:
-
-1. MacOS executable
-1. Linux executable
-1. Windows executable
-1. Java-based executable, jar, requires JRE (1.8+), use `java -jar datasafe-cli.jar` to execute
-
-### REST based demo
-[Here](datasafe-rest-impl/DEMO.md) you can find quick demo of project capabilities with instructions how to use it.
 
 ## Adding to your project
 
