@@ -6,15 +6,34 @@ For demonstration purposes, library is wrapped into REST interface using Spring,
 so that it is acting as data-encryption server that encrypts data and stores it on S3 or filesystem. 
 In real usecase, of course, there will be no REST server and client will call same library functions directly.
 
+# TLDR
+
+Demo with local filesystem - user files are in `datasafe-rest-impl/target/ROOT_BUCKET`:
+
+1. Run: 
+ ```bash
+git clone https://github.com/adorsys/datasafe
+cd datasafe
+docker pull adorsys/datasafe && docker tag adorsys/datasafe datasafe-rest-test:latest
+cd datasafe-rest-impl
+./2.startDockerImageWithLocalFilesystem.sh
+```
+2. Open [datasafe UI url](http://localhost:8080/static/index.html)
+
+# More details
+
 ## Prerequisites
 
-To **build** demo from sources (you can skip it and pull from docker registry):
+#### To **build** demo from sources (you can skip it and pull from docker registry):
 
+- Checkout git repository - `git clone https://github.com/adorsys/datasafe`
+-  JDK (at least 8)
 -  Docker
 -  Node.js for UI
 
-To **run** demo:
+#### To **run** demo:
 
+- Checkout git repository - `git clone https://github.com/adorsys/datasafe`
 - Docker
 
 ## Building and running demo
@@ -35,6 +54,8 @@ docker pull adorsys/datasafe && docker tag adorsys/datasafe datasafe-rest-test:l
 ```
 
 ### Running
+
+Change working directory to cloned repository.
 
 Run using local filesystem, all data will be stored in `target/ROOT_BUCKET` folder:
 ```bash
