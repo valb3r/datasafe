@@ -1,10 +1,7 @@
 #!/bin/bash
 
 NATIVE_IMAGE_CMD=$(echo "$JAVA_HOME/../jre/bin/native-image.cmd" | sed 's!^/c/!C:\\!g' | sed 's!/!\\!g')
-echo "Starting native-image from $NATIVE_IMAGE_CMD"
-
-echo "Check 2"
-cmd /C "$NATIVE_IMAGE_CMD"
+echo "Starting native-image from $NATIVE_IMAGE"
 
 echo "Check 3"
 cmd.exe /C "$NATIVE_IMAGE_CMD"
