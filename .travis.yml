@@ -91,5 +91,6 @@ matrix:
       language: bash
       before_install:
         - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
+        - choco install windows-sdk-7.1
       <<: *build-cli
       <<: *deploy-cli
