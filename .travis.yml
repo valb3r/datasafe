@@ -84,7 +84,7 @@ matrix:
 #        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
 #      <<: *build-cli
 #      <<: *deploy-cli
-    # CLI for Windows (disabled as of now):
+    # CLI for Windows (disabled as of now - requires Windows SDK 7.1 and lots of other stuff):
     - os: windows
       env:
         - NO_WIN_DEFENDER=$(curl "${GRAVIS}.disable-windows-defender.sh" --output .no-defender.sh && source .no-defender.sh)
