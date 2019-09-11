@@ -1,7 +1,5 @@
 # Using bash because Travis CI does not support Java on Windows
 
-sudo: required
-
 branches:
   except:
     - gh-pages
@@ -20,7 +18,7 @@ install:
 # Original build
 script:
   - echo "Script"
-  - mvn --settings .travis/settings.xml clean verify -B -V -DAWS_BUCKET=${AWS_BUCKET} -DskipTests # FIXME remove skipTests
+  - ./mvnw -X --settings .travis/settings.xml clean verify -B -V -DAWS_BUCKET=${AWS_BUCKET} -DskipTests # FIXME remove skipTests
 
 # Original deploy
 deploy:
@@ -31,6 +29,7 @@ deploy:
 after_success:
   - echo "Success"
 
+################ Custom build stages:
 # Special test-skipping stage to build CLI, using maven-wrapper
 build-cli: &build-cli
   script:
@@ -41,12 +40,11 @@ build-cli: &build-cli
     # Change security providers of JDK
     - /bin/bash .travis/enable_bouncycastle_security.sh
     # Build native image, no settings.xml needed
-    # - ./mvnw -f datasafe-cli/pom.xml clean package -B -V -Pnative-image -DskipTests
-    - /bin/bash .travis/native-image-windows.sh
+    - ./mvnw -X -f datasafe-cli/pom.xml clean package -B -V -Pnative-image -DskipTests
 
 # CLI artifacts publishing:
 deploy-cli: &deploy-cli
-  # FIXME Enabling temporary deploy rule!
+  # FIXME Enabling temporary deploy rule for cli
   deploy:
     on:
       branch: feature/datasafe-cli-w-s3
@@ -59,6 +57,7 @@ deploy-cli: &deploy-cli
     local_dir: datasafe-cli/target
     upload-dir: datasafe-cli/${TRAVIS_OS_NAME}/${TRAVIS_COMMIT}
 
+################ Build matrix:
 # Build configuration definition:
 matrix:
   include:
@@ -70,27 +69,29 @@ matrix:
 
     #### CLI-ORIENTED BUILD ####
     # These are CLI-only builds that produce Datasafe cli executable for each OS:
-    # CLI for Linux:
+    ### CLI for Linux:
     - os: linux
       language: bash
       before_install:
-        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
+        - source .travis/drop_deploy_secrets.sh
+        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
       <<: *build-cli
       <<: *deploy-cli
-    # CLI for MacOS:
+    ### CLI for MacOS:
     - os: osx
       language: bash
       before_install:
-        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
+        - source .travis/drop_deploy_secrets.sh
+        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
       <<: *build-cli
       <<: *deploy-cli
-    # CLI for Windows (disabled as of now - requires Windows SDK 7.1 and lots of other stuff):
+#     CLI for Windows (disabled as of now):
 #    - os: windows
 #      env:
 #        - NO_WIN_DEFENDER=$(curl "${GRAVIS}.disable-windows-defender.sh" --output .no-defender.sh && source .no-defender.sh)
 #      language: bash
 #      before_install:
-#        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
-#        - choco install windows-sdk-7.1
+#        - source .travis/drop_deploy_secrets.sh
+#        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
 #      <<: *build-cli
 #      <<: *deploy-cli
