@@ -74,7 +74,7 @@ matrix:
       language: bash
       before_install:
         - source .travis/drop_deploy_secrets.sh
-        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
+        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
       <<: *build-cli
       <<: *deploy-cli
     ### CLI for MacOS:
@@ -82,16 +82,16 @@ matrix:
       language: bash
       before_install:
         - source .travis/drop_deploy_secrets.sh
-        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
+        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
       <<: *build-cli
       <<: *deploy-cli
 #     CLI for Windows (disabled as of now):
-#    - os: windows
-#      env:
-#        - NO_WIN_DEFENDER=$(curl "${GRAVIS}.disable-windows-defender.sh" --output .no-defender.sh && source .no-defender.sh)
-#      language: bash
-#      before_install:
-#        - source .travis/drop_deploy_secrets.sh
-#        - /bin/bash .travis/install_maven_custom_jdk_and_add_security_providers.sh
-#      <<: *build-cli
-#      <<: *deploy-cli
+    - os: windows
+      env:
+        - NO_WIN_DEFENDER=$(curl "${GRAVIS}.disable-windows-defender.sh" --output .no-defender.sh && source .no-defender.sh)
+      language: bash
+      before_install:
+        - source .travis/drop_deploy_secrets.sh
+        - /bin/bash .travis/install_custom_jdk_and_add_security_providers.sh
+      <<: *build-cli
+      <<: *deploy-cli
