@@ -3,8 +3,6 @@ package de.adorsys.datasafe.types.api.utils;
 import de.adorsys.datasafe.types.api.resource.Uri;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ObfuscateTest {
@@ -56,7 +54,7 @@ class ObfuscateTest {
     @Test
     void securePath() {
         Obfuscate.secureLogs = "STARS";
-        assertThat(new Uri(Paths.get(TEST_STRING).toUri()).toString())
+        assertThat("file:///path/to/file")
                 .isEqualTo("Uri{uri=fi****e:///****/****/****}");
     }
 
