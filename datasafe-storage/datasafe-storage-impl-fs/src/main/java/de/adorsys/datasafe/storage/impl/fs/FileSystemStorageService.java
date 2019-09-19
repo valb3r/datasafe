@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,7 @@ public class FileSystemStorageService implements StorageService {
                         new BaseResolvedResource(
                                 // We store path in uri-encoded form, so toUri calls will fail
                                 new BasePrivateResource(
-                                        new Uri(it.toUri().toString())
+                                        new Uri(URI.create(UriEncoderDecoder.decodeAndDropAuthority(it.toUri())))
                                 ),
                                 Instant.ofEpochMilli(it.toFile().lastModified()))
                         )
