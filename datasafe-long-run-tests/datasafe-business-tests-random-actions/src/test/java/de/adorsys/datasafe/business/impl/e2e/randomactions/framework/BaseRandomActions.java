@@ -109,10 +109,6 @@ public abstract class BaseRandomActions extends WithStorageProvider {
             switch (it) {
                 case "AMAZON":
                     return s3();
-                case "MINIO":
-                    return minio();
-                case "CEPH":
-                    return cephVersioned();
                 case "FILESYSTEM":
                     return fs();
             }
