@@ -102,12 +102,10 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         WithStorageProvider.tempDir = tempDir;
 
         minioStorage = Suppliers.memoize(() -> {
-            startMinio();
             return null;
         });
 
         cephStorage = Suppliers.memoize(() -> {
-            startCeph();
             return null;
         });
 
@@ -159,8 +157,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     @ValueSource
     protected static Stream<StorageDescriptor> allLocalDefaultStorages() {
         return Stream.of(
-                fs(),
-                minio()
+                fs()
                 /* No CEPH here because it is quite slow*/
         ).filter(Objects::nonNull);
     }
@@ -168,9 +165,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     @ValueSource
     protected static Stream<StorageDescriptor> allLocalStorages() {
         return Stream.of(
-                fs(),
-                minio(),
-                cephVersioned()
+                fs()
         ).filter(Objects::nonNull);
     }
 
@@ -178,7 +173,6 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     protected static Stream<StorageDescriptor> allDefaultStorages() {
         return Stream.of(
                 fs(),
-                minio(),
                 s3()
         ).filter(Objects::nonNull);
     }
@@ -187,8 +181,6 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     protected static Stream<StorageDescriptor> allStorages() {
         return Stream.of(
                 fs(),
-                minio(),
-                cephVersioned(),
                 s3()
         ).filter(Objects::nonNull);
     }
@@ -203,38 +195,6 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         );
     }
 
-    protected static StorageDescriptor minio() {
-        return new StorageDescriptor(
-                StorageDescriptorName.MINIO,
-                () -> {
-                    minioStorage.get();
-                    return new S3StorageService(minio, primaryBucket, EXECUTOR_SERVICE);
-                },
-                new Uri("s3://" + primaryBucket + "/" + bucketPath + "/"),
-                minioAccessKeyID,
-                minioSecretAccessKey,
-                minioRegion,
-                primaryBucket + "/" + bucketPath
-        );
-    }
-
-    protected static StorageDescriptor cephVersioned() {
-        if (skipCeph()) {
-            return null;
-        }
-        return new StorageDescriptor(
-                StorageDescriptorName.CEPH,
-                () -> {
-                    cephStorage.get();
-                    return new S3StorageService(ceph, primaryBucket, EXECUTOR_SERVICE);
-                },
-                new Uri("s3://" + primaryBucket + "/" + bucketPath + "/"),
-                cephAccessKeyID,
-                cephSecretAccessKey,
-                cephRegion,
-                primaryBucket + "/" + bucketPath
-        );
-    }
 
     private static boolean skipCeph() {
         String value = System.getProperty(SKIP_CEPH);
