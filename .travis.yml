@@ -36,11 +36,7 @@ build-cli: &build-cli
     # re-export JAVA_HOME
     - source  ~/.jdk_config
     # Prepare everything, no settings.xml needed
-    - ./mvnw -X clean install -B -V -DskipTests
-    # Change security providers of JDK
-    - /bin/bash .travis/enable_bouncycastle_security.sh
-    # Build native image, no settings.xml needed
-    - ./mvnw -X -f datasafe-cli/pom.xml clean package -B -V
+    - ./mvnw clean install -B -V -DskipTestsV
 
 # CLI artifacts publishing:
 deploy-cli: &deploy-cli
