@@ -1,0 +1,1 @@
+ECHO "Test is OK"
