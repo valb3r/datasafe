@@ -54,7 +54,7 @@ class ObfuscateTest {
     @Test
     void securePath() {
         Obfuscate.secureLogs = "STARS";
-        assertThat("file:///path/to/file")
+        assertThat(new Uri("file:///path/to/file").toString())
                 .isEqualTo("Uri{uri=fi****e:///****/****/****}");
     }
 
