@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseE2ETest extends WithStorageProvider {
+    private Charset THE_CHARSET=Charset.forName("UTF-8");
 
     protected static final String PRIVATE_COMPONENT = "private";
     protected static final String PRIVATE_FILES_COMPONENT = PRIVATE_COMPONENT + "/files";
@@ -147,7 +149,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray());
+        String data = new String(outputStream.toByteArray(), THE_CHARSET);
         log.info("{} has {} in PRIVATE", user, Obfuscate.secure(data));
         return data;
     }
@@ -164,7 +166,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray());
+        String data = new String(outputStream.toByteArray(), THE_CHARSET );
         log.info("{} has {} in INBOX", user, Obfuscate.secure(data));
         return data;
     }
