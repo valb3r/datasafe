@@ -225,7 +225,9 @@ class BasicFunctionalityTest extends BaseE2ETest {
         // no path encryption for inbox:
         assertThat(foundResource.location().getPath()).asString().contains(SHARED_FILE);
         // validate encryption on high-level:
-        assertThat(storage.read(foundResource)).asString().doesNotContain(MESSAGE_ONE);
+        try (java.io.InputStream read = storage.read(foundResource)) {
+            assertThat(read).asString().doesNotContain(MESSAGE_ONE);
+        }
     }
 
     @SneakyThrows
@@ -240,7 +242,9 @@ class BasicFunctionalityTest extends BaseE2ETest {
         // validate encryption on high-level:
         assertThat(foundResource.toString()).doesNotContain(PRIVATE_FILE);
         assertThat(foundResource.toString()).doesNotContain(FOLDER);
-        assertThat(storage.read(foundResource)).asString().doesNotContain(MESSAGE_ONE);
+        try (java.io.InputStream read = storage.read(foundResource)) {
+            assertThat(read).asString().doesNotContain(MESSAGE_ONE);
+        }
     }
 
     @SneakyThrows

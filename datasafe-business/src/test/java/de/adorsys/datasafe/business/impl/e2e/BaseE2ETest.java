@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseE2ETest extends WithStorageProvider {
-    private Charset THE_CHARSET=Charset.forName("UTF-8");
+    protected Charset THE_CHARSET=Charset.forName("UTF-8");
 
     protected static final String PRIVATE_COMPONENT = "private";
     protected static final String PRIVATE_FILES_COMPONENT = PRIVATE_COMPONENT + "/files";
@@ -111,7 +111,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
     @SneakyThrows
     protected void writeDataToPrivate(UserIDAuth auth, String path, String data) {
         try (OutputStream stream = writeToPrivate.write(WriteRequest.forDefaultPrivate(auth, path))) {
-            stream.write(data.getBytes());
+            stream.write(data.getBytes(THE_CHARSET));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
@@ -122,7 +122,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             WriteRequest.forDefaultPublic(Collections.singleton(auth.getUserID()), path)
         )) {
 
-            stream.write(data.getBytes());
+            stream.write(data.getBytes(THE_CHARSET));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
