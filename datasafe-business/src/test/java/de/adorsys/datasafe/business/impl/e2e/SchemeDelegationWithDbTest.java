@@ -91,6 +91,7 @@ class SchemeDelegationWithDbTest extends WithStorageProvider {
         assertThat(Files.walk(fsPath))
             .extracting(it -> fsPath.relativize(it))
             .extracting(Path::toString)
+                .extracting(string -> string.replaceAll("\\\\","/"))
             .containsExactlyInAnyOrder(
                 "",
                 "users",
@@ -101,7 +102,7 @@ class SchemeDelegationWithDbTest extends WithStorageProvider {
                 "users/john/private/keystore",
                 "users/john/private/files",
                 "users/john/private/files/SIV",
-                fsPath.relativize(encryptedFile).toString()
+                fsPath.relativize(encryptedFile).toString().replaceAll("\\\\","/")
             );
     }
 

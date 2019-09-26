@@ -32,6 +32,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -120,7 +121,8 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     void cleanup() {
         log.info("Executing cleanup");
         if (null != tempDir && tempDir.toFile().exists()) {
-            FileUtils.cleanDirectory(tempDir.toFile());
+            // FileUtils.cleanDirectory(tempDir.toFile());
+            deleteDirectoryWithAllFiles(tempDir.toFile());
         }
 
         if (null != minio) {
@@ -133,6 +135,47 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
 
         if (null != amazonS3) {
             buckets.forEach(it -> removeObjectFromS3(amazonS3, it, bucketPath));
+        }
+    }
+
+    private static void deleteDirectoryWithAllFiles(File file) {
+        if (!file.exists()) {
+            log.debug("WARNING: no deletion, because directory does not exist:" + file);
+            return;
+        }
+        if (file.isDirectory()) {
+            for (File subfile : file.listFiles()) {
+                if (subfile.isDirectory()) {
+                    deleteDirectoryWithAllFiles(subfile);
+                } else {
+                    boolean ok = subfile.delete();
+                    if (ok) {
+                        if (file.exists()) {
+                            log.error("delete file      :" + subfile + " was " + ok + " but file still exists");
+                            throw new RuntimeException("delete file      :" + subfile + " was " + ok + " but file still exists");
+                        } else {
+                            log.debug("delete file      :" + subfile + " was " + ok);
+                        }
+                    } else {
+                        log.error("delete file      :" + subfile + " was " + ok);
+                        throw new RuntimeException("delete file      :" + subfile + " was " + ok);
+                    }
+                }
+            }
+            boolean ok = file.delete();
+            if (ok) {
+                if (file.exists()) {
+                    log.error("delete directory :" + file + " was " + ok + " but directory still exists");
+                    throw new RuntimeException("delete directory :" + file + " was " + ok + " but directory still exists");
+                } else {
+                    log.debug("delete directory :" + file + " was " + ok);
+                }
+            } else {
+                log.error("delete directory :" + file + " was " + ok);
+                throw new RuntimeException("delete directory :" + file + " was " + ok);
+            }
+        } else {
+            throw new RuntimeException("file is file, not a directory:" + file);
         }
     }
 

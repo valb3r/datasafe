@@ -46,7 +46,6 @@ public class VersionedDataTest extends BaseE2ETest {
     @MethodSource("allLocalDefaultStorages")
     void testVersionedWriteTopLevel(WithStorageProvider.StorageDescriptor descriptor) {
         init(descriptor);
-
         registerAndDoWritesWithDiffMessageInSameLocation();
 
         String readingResult = readPrivateUsingPrivateKey(jane, BasePrivateResource.forPrivate(PRIVATE_FILE_PATH));
@@ -258,6 +257,7 @@ public class VersionedDataTest extends BaseE2ETest {
     }
 
     private void init(WithStorageProvider.StorageDescriptor descriptor) {
+        log.info("INIT TESTCASE:" + new RuntimeException().getStackTrace()[1].getMethodName());
         VersionedDatasafeServices datasafeServices = DatasafeServicesProvider
                 .versionedDatasafeServices(descriptor.getStorageService().get(), descriptor.getLocation());
 
