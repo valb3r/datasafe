@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 @RuntimeDelegate
@@ -84,6 +86,10 @@ public class ProfileRetrievalServiceImpl implements ProfileRetrievalService {
         try (InputStream is = readService.read(access.withSystemAccess(resource))) {
             log.debug("read profile {}", resource.location());
             return serde.fromJson(new String(ByteStreams.toByteArray(is)), clazz);
+        }
+        finally {
+            Path path = Paths.get(resource.location().asURI());
+            log.error("XXX finally von read profile:" + path);
         }
     }
 }

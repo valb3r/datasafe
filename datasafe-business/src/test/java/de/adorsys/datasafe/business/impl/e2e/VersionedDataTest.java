@@ -42,6 +42,17 @@ public class VersionedDataTest extends BaseE2ETest {
 
     private VersionedDatasafeServices versionedDocusafeServices;
 
+    private static Stream<WithStorageProvider.StorageDescriptor> fsOnly() {
+        return Stream.of(fs());
+    }
+
+    @ParameterizedTest
+    @MethodSource("fsOnly")
+    void testOpenFileHandle(WithStorageProvider.StorageDescriptor descriptor) {
+        init(descriptor);
+        jane = registerUser("jane");
+    }
+
     @ParameterizedTest
     @MethodSource("allLocalDefaultStorages")
     void testVersionedWriteTopLevel(WithStorageProvider.StorageDescriptor descriptor) {
