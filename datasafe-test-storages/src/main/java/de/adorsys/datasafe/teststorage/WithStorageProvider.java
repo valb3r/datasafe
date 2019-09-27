@@ -138,19 +138,19 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         }
     }
 
-    private static void deleteDirectoryWithAllFiles(File file) {
-        if (!file.exists()) {
-            log.debug("WARNING: no deletion, because directory does not exist:" + file);
+    private static void deleteDirectoryWithAllFiles(File directory) {
+        if (!directory.exists()) {
+            log.debug("WARNING: no deletion, because directory does not exist:" + directory);
             return;
         }
-        if (file.isDirectory()) {
-            for (File subfile : file.listFiles()) {
+        if (directory.isDirectory()) {
+            for (File subfile : directory.listFiles()) {
                 if (subfile.isDirectory()) {
                     deleteDirectoryWithAllFiles(subfile);
                 } else {
                     boolean ok = subfile.delete();
                     if (ok) {
-                        if (file.exists()) {
+                        if (subfile.exists()) {
                             log.error("delete file      :" + subfile + " was " + ok + " but file still exists");
                             throw new RuntimeException("delete file      :" + subfile + " was " + ok + " but file still exists");
                         } else {
@@ -162,20 +162,20 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
                     }
                 }
             }
-            boolean ok = file.delete();
+            boolean ok = directory.delete();
             if (ok) {
-                if (file.exists()) {
-                    log.error("delete directory :" + file + " was " + ok + " but directory still exists");
-                    throw new RuntimeException("delete directory :" + file + " was " + ok + " but directory still exists");
+                if (directory.exists()) {
+                    log.error("delete directory :" + directory + " was " + ok + " but directory still exists");
+                    throw new RuntimeException("delete directory :" + directory + " was " + ok + " but directory still exists");
                 } else {
-                    log.debug("delete directory :" + file + " was " + ok);
+                    log.debug("delete directory :" + directory + " was " + ok);
                 }
             } else {
-                log.error("delete directory :" + file + " was " + ok);
-                throw new RuntimeException("delete directory :" + file + " was " + ok);
+                log.error("delete directory :" + directory + " was " + ok);
+                throw new RuntimeException("delete directory :" + directory + " was " + ok);
             }
         } else {
-            throw new RuntimeException("file is file, not a directory:" + file);
+            throw new RuntimeException("file is file, not a directory:" + directory);
         }
     }
 

@@ -41,6 +41,7 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Stream<AbsoluteLocation<ResolvedResource>> list(AbsoluteLocation path) {
         log.debug("List file request: {}", path.location());
+        Arrays.stream(new RuntimeException().getStackTrace()).filter(el -> el.toString().startsWith("de")).forEach(el -> log.debug("STACK " + el.toString()));
         Path filePath = resolve(path.location().getRawPath(), false);
 
         // FS should be compatible with s3 behavior:
