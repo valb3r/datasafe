@@ -11,7 +11,6 @@ import de.adorsys.datasafe.types.api.actions.ReadRequest;
 import de.adorsys.datasafe.types.api.actions.RemoveRequest;
 import de.adorsys.datasafe.types.api.actions.WriteRequest;
 import de.adorsys.datasafe.types.api.resource.*;
-import de.adorsys.datasafe.types.api.shared.Position;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,17 +40,6 @@ public class VersionedDataTest extends BaseE2ETest {
     private static final String PRIVATE_FILE_PATH = FOLDER + "/" + PRIVATE_FILE;
 
     private VersionedDatasafeServices versionedDocusafeServices;
-
-    private static Stream<WithStorageProvider.StorageDescriptor> fsOnly() {
-        return Stream.of(fs());
-    }
-
-    @ParameterizedTest
-    @MethodSource("fsOnly")
-    void testOpenFileHandle(WithStorageProvider.StorageDescriptor descriptor) {
-        init(descriptor);
-        jane = registerUser("jane");
-    }
 
     @ParameterizedTest
     @MethodSource("allLocalDefaultStorages")
@@ -88,8 +76,7 @@ public class VersionedDataTest extends BaseE2ETest {
 
         registerAndDoWritesWithDiffMessageInSameLocation();
 
-        Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> first =
-            Position.first(versionedListRoot(jane));
+        Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> first = firstOfVersionedListRoot(jane);
         String directResult = readPrivateUsingPrivateKey(jane, first.stripVersion().asPrivate());
 
         assertThat(directResult).isEqualTo(MESSAGE_THREE);
@@ -104,8 +91,7 @@ public class VersionedDataTest extends BaseE2ETest {
 
         registerAndDoWritesWithDiffMessageInSameLocation();
 
-        Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> first =
-                Position.first(versionedListRoot(jane));
+        Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> first = firstOfVersionedListRoot(jane);
         versionedDocusafeServices.latestPrivate().remove(
                 RemoveRequest.forPrivate(jane, first.stripVersion().asPrivate())
         );
@@ -289,5 +275,12 @@ public class VersionedDataTest extends BaseE2ETest {
         assertThat(
                 versionedDocusafeServices.privateService().list(ListRequest.forDefaultPrivate(user, "./"))
         ).hasSize(versionCount);
+    }
+
+    private Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> firstOfVersionedListRoot(
+            UserIDAuth owner) {
+        try(Stream<Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version>> ls = versionedDocusafeServices.latestPrivate().listWithDetails(ListRequest.forDefaultPrivate(owner, "./"))) {
+            return ls.findFirst().orElseThrow(() -> new IllegalStateException("Empty directory"));
+        }
     }
 }
