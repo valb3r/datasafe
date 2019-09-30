@@ -6,6 +6,7 @@ import de.adorsys.datasafe.types.api.resource.WithCallback;
 import de.adorsys.datasafe.types.api.shared.BaseMockitoTest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -61,10 +63,13 @@ class UriBasedAuthStorageServiceTest extends BaseMockitoTest {
 
     @MethodSource("fixture")
     @ParameterizedTest
+    @SneakyThrows
     void read(MappedItem item) {
-        tested.read(item.getUri());
-        assertThat(argumentCaptor.getValue()).isEqualToComparingFieldByField(item.getAccessId());
-        verify(storage).read(item.getUri());
+        try (InputStream read = tested.read(item.getUri())) {
+            assertThat(argumentCaptor.getValue()).isEqualToComparingFieldByField(item.getAccessId());
+            try (InputStream read1 = verify(storage).read(item.getUri()) ) {
+            }
+        }
     }
 
     @MethodSource("fixture")

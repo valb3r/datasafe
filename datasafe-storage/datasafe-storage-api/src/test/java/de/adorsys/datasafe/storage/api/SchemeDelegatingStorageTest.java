@@ -5,8 +5,10 @@ import de.adorsys.datasafe.types.api.resource.AbsoluteLocation;
 import de.adorsys.datasafe.types.api.resource.BasePrivateResource;
 import de.adorsys.datasafe.types.api.resource.WithCallback;
 import de.adorsys.datasafe.types.api.shared.BaseMockitoTest;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
@@ -52,10 +54,12 @@ class SchemeDelegatingStorageTest extends BaseMockitoTest {
     }
 
     @Test
+    @SneakyThrows
     void readDelegates() {
-        tested.read(locationExists);
-
-        verify(service).read(locationExists);
+        try (InputStream read = tested.read(locationExists)) {
+            try (InputStream read1 = verify(service).read(locationExists)) {
+            }
+        }
     }
 
     @Test

@@ -127,10 +127,12 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
     }
 
     @Test
+    @SneakyThrows
     void read() {
         createFileWithMessage();
-
-        assertThat(storageService.read(fileWithMsg)).hasContent(MESSAGE);
+        try (InputStream read = storageService.read(fileWithMsg)) {
+            assertThat(read).hasContent(MESSAGE);
+        }
     }
 
     @Test
@@ -140,7 +142,9 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
             os.write(MESSAGE.getBytes());
         }
 
-        assertThat(storageService.read(fileWithMsg)).hasContent(MESSAGE);
+        try (InputStream read = storageService.read(fileWithMsg)) {
+            assertThat(read).hasContent(MESSAGE);
+        }
     }
 
     @Test

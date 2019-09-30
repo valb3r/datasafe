@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Set;
@@ -84,8 +85,11 @@ class DatabaseStorageServiceTest extends BaseMockitoTest {
     }
 
     @Test
+    @SneakyThrows
     void read() {
-        assertThat(storageService.read(FILE)).hasContent(MESSAGE);
+        try (InputStream read = storageService.read(FILE)) {
+            assertThat(read).hasContent(MESSAGE);
+        }
     }
 
     @Test
@@ -95,9 +99,12 @@ class DatabaseStorageServiceTest extends BaseMockitoTest {
     }
 
     @Test
+    @SneakyThrows
     void write() {
         writeData(OTHER_FILE, MESSAGE);
-        assertThat(storageService.read(OTHER_FILE)).hasContent(MESSAGE);
+        try (InputStream read = storageService.read(OTHER_FILE)) {
+            assertThat(read).hasContent(MESSAGE);
+        }
     }
 
     @SneakyThrows
