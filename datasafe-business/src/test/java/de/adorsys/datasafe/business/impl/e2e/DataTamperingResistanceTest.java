@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -105,8 +106,11 @@ class DataTamperingResistanceTest extends BaseE2ETest {
 
         assertThrows(
                 UnauthenticCiphertextException.class,
-                () -> listPrivate.list(ListRequest.forDefaultPrivate(jane, ""))
-                        .forEach(it -> log.info("{}", it.location())) // consume stream
+                () -> {
+                    try (Stream<AbsoluteLocation<ResolvedResource>> stream = listPrivate.list(ListRequest.forDefaultPrivate(jane, ""))) {
+                        stream.forEach(it -> log.info("{}", it.location())); // consume stream
+                    }
+                }
         );
     }
 
