@@ -42,6 +42,7 @@ class SimpleAdapterFeatureTest {
     void afterEach() {
         System.setProperty(SwitchablePathEncryptionImpl.NO_BUCKETPATH_ENCRYPTION, Boolean.FALSE.toString());
         System.setProperty(SwitchableCmsEncryptionImpl.NO_CMSENCRYPTION_AT_ALL, Boolean.FALSE.toString());
+
     }
 
     @Test
@@ -53,6 +54,7 @@ class SimpleAdapterFeatureTest {
         AbsoluteLocation<PrivateResource> rootLocation = getPrivateResourceAbsoluteLocation();
         Assertions.assertEquals(0, simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).count());
         simpleDatasafeService.destroyUser(userIDAuth);
+        cleanup(simpleDatasafeService);
     }
 
     @Test
@@ -71,6 +73,7 @@ class SimpleAdapterFeatureTest {
         IOUtils.copy(read, writer, StandardCharsets.UTF_8);
         assertFalse(writer.toString().equals(content));
         simpleDatasafeService.destroyUser(userIDAuth);
+        cleanup(simpleDatasafeService);
     }
 
 
@@ -91,6 +94,7 @@ class SimpleAdapterFeatureTest {
         IOUtils.copy(read, writer, StandardCharsets.UTF_8);
         assertTrue(writer.toString().equals(content));
         simpleDatasafeService.destroyUser(userIDAuth);
+        cleanup(simpleDatasafeService);
     }
 
     @Nullable
@@ -107,6 +111,11 @@ class SimpleAdapterFeatureTest {
         }
         return rootLocation;
     }
+
+    private void cleanup(SimpleDatasafeServiceImpl simpleDatasafeService) {
+        simpleDatasafeService.cleanupDb();
+    }
+
 
 
 }
