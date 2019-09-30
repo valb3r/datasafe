@@ -25,13 +25,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @Slf4j
 class SimpleAdapterFeatureTest {
-    
+
     private UserIDAuth userIDAuth = new UserIDAuth(new UserID("peter"), new ReadKeyPassword("password"));
     private String content = "content of document";
     private String path = "a/b/c.txt";
@@ -54,7 +55,7 @@ class SimpleAdapterFeatureTest {
         AbsoluteLocation<PrivateResource> rootLocation = getPrivateResourceAbsoluteLocation();
         Assertions.assertEquals(0, simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).count());
         simpleDatasafeService.destroyUser(userIDAuth);
-        cleanup(simpleDatasafeService);
+        simpleDatasafeService.cleanupDb();
     }
 
     @Test
@@ -66,14 +67,20 @@ class SimpleAdapterFeatureTest {
         simpleDatasafeService.storeDocument(userIDAuth, document);
 
         AbsoluteLocation<PrivateResource> rootLocation = getPrivateResourceAbsoluteLocation();
-        Assertions.assertEquals(1, simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).count());
-        Optional<AbsoluteLocation<ResolvedResource>> first = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).findFirst();
-        InputStream read = simpleDatasafeService.getStorageService().read(first.get());
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(read, writer, StandardCharsets.UTF_8);
-        assertFalse(writer.toString().equals(content));
+        try (Stream<AbsoluteLocation<ResolvedResource>> absoluteLocationStream = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path))) {
+            Assertions.assertEquals(1, absoluteLocationStream.count());
+        }
+        try (Stream<AbsoluteLocation<ResolvedResource>> absoluteLocationStream = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path))) {
+            Optional<AbsoluteLocation<ResolvedResource>> first =absoluteLocationStream.findFirst();
+
+            try (InputStream read = simpleDatasafeService.getStorageService().read(first.get())) {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(read, writer, StandardCharsets.UTF_8);
+                assertFalse(writer.toString().equals(content));
+            }
+        }
         simpleDatasafeService.destroyUser(userIDAuth);
-        cleanup(simpleDatasafeService);
+        simpleDatasafeService.cleanupDb();
     }
 
 
@@ -87,14 +94,20 @@ class SimpleAdapterFeatureTest {
         simpleDatasafeService.storeDocument(userIDAuth, document);
 
         AbsoluteLocation<PrivateResource> rootLocation = getPrivateResourceAbsoluteLocation();
-        Assertions.assertEquals(1, simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).count());
-        Optional<AbsoluteLocation<ResolvedResource>> first = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).findFirst();
-        InputStream read = simpleDatasafeService.getStorageService().read(first.get());
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(read, writer, StandardCharsets.UTF_8);
-        assertTrue(writer.toString().equals(content));
+        try (Stream<AbsoluteLocation<ResolvedResource>> absoluteLocationStream = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path))) {
+            Assertions.assertEquals(1, absoluteLocationStream.count());
+        }
+        try (Stream<AbsoluteLocation<ResolvedResource>> absoluteLocationStream = simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path))) {
+            Optional<AbsoluteLocation<ResolvedResource>> first =absoluteLocationStream.findFirst();
+
+            try (InputStream read = simpleDatasafeService.getStorageService().read(first.get())) {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(read, writer, StandardCharsets.UTF_8);
+                assertTrue(writer.toString().equals(content));
+            }
+        }
         simpleDatasafeService.destroyUser(userIDAuth);
-        cleanup(simpleDatasafeService);
+        simpleDatasafeService.cleanupDb();
     }
 
     @Nullable
@@ -111,11 +124,4 @@ class SimpleAdapterFeatureTest {
         }
         return rootLocation;
     }
-
-    private void cleanup(SimpleDatasafeServiceImpl simpleDatasafeService) {
-        simpleDatasafeService.cleanupDb();
-    }
-
-
-
 }
