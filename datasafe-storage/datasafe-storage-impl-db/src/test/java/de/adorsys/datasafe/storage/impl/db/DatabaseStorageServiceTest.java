@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,16 +73,20 @@ class DatabaseStorageServiceTest extends BaseMockitoTest {
     void list() {
         writeData(OTHER_FILE, MESSAGE);
 
-        assertThat(storageService.list(FILE))
-                .extracting(it -> it.getResource().location().asString())
-                .containsOnly("jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt");
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(FILE)) {
+            assertThat(stream)
+                    .extracting(it -> it.getResource().location().asString())
+                    .containsOnly("jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt");
+        }
 
-        assertThat(storageService.list(ROOT))
-                .extracting(it -> it.getResource().location().asString())
-                .containsOnly(
-                        "jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt",
-                        "jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello1.txt"
-                );
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(ROOT)) {
+            assertThat(stream)
+                    .extracting(it -> it.getResource().location().asString())
+                    .containsOnly(
+                            "jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt",
+                            "jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello1.txt"
+                    );
+        }
     }
 
     @Test

@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,14 +46,18 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
     @Test
     void objectExists() {
         createFileWithMessage();
-        assertThat(storageService.objectExists(storageService.list(root).findFirst().get())).isTrue();
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
+            assertThat(storageService.objectExists(stream.findFirst().get())).isTrue();
+        }
     }
 
     @Test
     void listEmpty() {
         Path nonExistingFile = storageDir.resolve(UUID.randomUUID().toString());
         AbsoluteLocation<PrivateResource> nonExistingFileLocation = new AbsoluteLocation<>(BasePrivateResource.forPrivate(nonExistingFile.toUri()));
-        assertThat(storageService.list(nonExistingFileLocation).collect(Collectors.toList())).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(nonExistingFileLocation)) {
+            assertThat(stream.collect(Collectors.toList())).isEmpty();
+        }
     }
 
     @SneakyThrows
@@ -104,26 +109,34 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
         Path dotFile = storageDir.resolve(".dotfile");
         AbsoluteLocation<PrivateResource> newFileLocation = new AbsoluteLocation<>(BasePrivateResource.forPrivate(dotFile.toUri()));
 
-        assertThat(storageService.list(root).collect(Collectors.toList())).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
+            assertThat(stream.collect(Collectors.toList())).isEmpty();
+        }
         try (OutputStream os = storageService.write(WithCallback.noCallback(newFileLocation))) {
             os.write(MESSAGE.getBytes());
         }
-        assertThat(storageService.list(root).collect(Collectors.toList())).isNotEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
+            assertThat(stream.collect(Collectors.toList())).isNotEmpty();
+        }
     }
 
     @Test
     void list() {
         createFileWithMessage();
 
-        assertThat(storageService.list(root))
-                .hasSize(1)
-                .extracting(AbsoluteLocation::location)
-                .asString().contains(FILE);
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
+            assertThat(stream)
+                    .hasSize(1)
+                    .extracting(AbsoluteLocation::location)
+                    .asString().contains(FILE);
+        }
     }
 
     @Test
     void listOnNonExisting() {
-        assertThat(storageService.list(root)).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
+            assertThat(stream).isEmpty();
+        }
     }
 
     @Test

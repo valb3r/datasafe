@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.adorsys.datasafe.business.impl.e2e.Const.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -249,10 +250,12 @@ class BasicFunctionalityTest extends BaseE2ETest {
 
     @SneakyThrows
     private List<AbsoluteLocation<ResolvedResource>> listFiles(Predicate<String> pattern) {
-        return storage.list(new AbsoluteLocation<>(BasePrivateResource.forPrivate(location)))
-                .filter(it -> !it.location().toASCIIString().startsWith("."))
-                .filter(it -> pattern.test(it.location().toASCIIString()))
-                .collect(Collectors.toList());
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storage.list(new AbsoluteLocation<>(BasePrivateResource.forPrivate(location)))) {
+            return stream
+                    .filter(it -> !it.location().toASCIIString().startsWith("."))
+                    .filter(it -> pattern.test(it.location().toASCIIString()))
+                    .collect(Collectors.toList());
+        }
     }
 
     private void init(WithStorageProvider.StorageDescriptor descriptor) {

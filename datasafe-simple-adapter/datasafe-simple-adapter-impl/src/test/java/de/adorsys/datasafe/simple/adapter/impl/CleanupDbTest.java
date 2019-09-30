@@ -7,9 +7,13 @@ import de.adorsys.datasafe.simple.adapter.api.types.DSDocument;
 import de.adorsys.datasafe.simple.adapter.api.types.DocumentContent;
 import de.adorsys.datasafe.simple.adapter.api.types.DocumentFQN;
 import de.adorsys.datasafe.teststorage.WithStorageProvider;
+import de.adorsys.datasafe.types.api.resource.AbsoluteLocation;
 import de.adorsys.datasafe.types.api.resource.BasePrivateResource;
+import de.adorsys.datasafe.types.api.resource.ResolvedResource;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,18 +50,14 @@ class CleanupDbTest extends WithStorageProvider {
                 new DocumentContent(content.getBytes())));
 
         // (1 keystore + 1 pub key + 1 file) * 2
-        assertEquals(6,
-                descriptor.getStorageService().get().list(
-                        BasePrivateResource.forAbsolutePrivate(descriptor.getLocation())
-                ).count()
-        );
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
+            assertEquals(6,stream.count());
+        }
 
         simpleDatasafeService.cleanupDb();
 
-        assertEquals(0,
-                descriptor.getStorageService().get().list(
-                        BasePrivateResource.forAbsolutePrivate(descriptor.getLocation())
-                ).count()
-        );
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
+            assertEquals(0,stream.count());
+        }
     }
 }
