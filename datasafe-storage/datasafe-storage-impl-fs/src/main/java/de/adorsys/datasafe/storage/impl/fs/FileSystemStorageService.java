@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -41,7 +40,6 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Stream<AbsoluteLocation<ResolvedResource>> list(AbsoluteLocation path) {
         log.debug("List file request: {}", path.location());
-        Arrays.stream(new RuntimeException().getStackTrace()).filter(el -> el.toString().startsWith("de")).forEach(el -> log.debug("STACK " + el.toString()));
         Path filePath = resolve(path.location().getRawPath(), false);
 
         // FS should be compatible with s3 behavior:
@@ -82,7 +80,6 @@ public class FileSystemStorageService implements StorageService {
     public InputStream read(AbsoluteLocation path) {
         log.debug("Read file request: {}",path.location());
         Path filePath = resolve(path.location().getRawPath(), false);
-        Arrays.stream(new RuntimeException().getStackTrace()).filter(el -> el.toString().startsWith("de")).forEach(el -> log.debug("STACK " + el.toString()));
         return MoreFiles.asByteSource(filePath, StandardOpenOption.READ).openStream();
     }
 
@@ -91,7 +88,6 @@ public class FileSystemStorageService implements StorageService {
     public OutputStream write(WithCallback<AbsoluteLocation, ? extends ResourceWriteCallback> locationWithCallback) {
         log.debug("Write file request: {}", locationWithCallback.getWrapped().location());
         Path filePath = resolve(locationWithCallback.getWrapped().location().getRawPath(), true);
-        Arrays.stream(new RuntimeException().getStackTrace()).filter(el -> el.toString().startsWith("de")).forEach(el -> log.debug("STACK " + el.toString()));
         return MoreFiles.asByteSink(filePath, StandardOpenOption.CREATE).openStream();
     }
 
