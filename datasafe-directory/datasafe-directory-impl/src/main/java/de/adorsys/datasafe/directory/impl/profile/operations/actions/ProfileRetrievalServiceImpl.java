@@ -84,27 +84,6 @@ public class ProfileRetrievalServiceImpl implements ProfileRetrievalService {
 
     @SneakyThrows
     private <T> T readProfile(AbsoluteLocation resource, Class<T> clazz) {
-        try {
-            return internalReadProfile(resource, clazz);
-        }
-
-        finally {
-            /*
-            Path path = Paths.get(resource.location().asURI());
-            log.error("XXX finally von read profile:" + path);
-            File file = path.toFile();
-
-                boolean ok = file.delete();
-                if (file.exists()) {
-                    log.error(file + " is deleted but still exists");
-                } else {
-                    log.info(file + " was successfully deleted");
-                }
-             */
-        }
-    }
-    @SneakyThrows
-    private <T> T internalReadProfile(AbsoluteLocation resource, Class<T> clazz) {
         try (InputStream is = readService.read(access.withSystemAccess(resource))) {
             log.debug("read profile {}", resource.location());
             return serde.fromJson(new String(ByteStreams.toByteArray(is)), clazz);
