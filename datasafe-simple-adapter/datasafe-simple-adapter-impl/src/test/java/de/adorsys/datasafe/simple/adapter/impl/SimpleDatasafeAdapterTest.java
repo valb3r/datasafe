@@ -70,6 +70,24 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
     }
 
     @ParameterizedTest
+    @MethodSource("minioOnly")
+    @SneakyThrows
+    void justCreateAndDeleteUserForMinioOnly(WithStorageProvider.StorageDescriptor descriptor) {
+        myinit(descriptor);
+        mystart();
+
+        // SimpleDatasafeAdapter does not use user profile json files, so only keystore and pubkeys should exist:
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
+            assertThat(stream).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
+                    .containsExactlyInAnyOrder(
+                            "users/peter/public/pubkeys",
+                            "users/peter/private/keystore"
+                    );
+        }
+        log.info("test create user and delete user with " + descriptor.getName());
+    }
+
+    @ParameterizedTest
     @MethodSource("storages")
     @SneakyThrows
     void justCreateAndDeleteUser(WithStorageProvider.StorageDescriptor descriptor) {
