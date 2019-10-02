@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.shaded.com.google.common.io.ByteStreams;
 
 import javax.crypto.AEADBadTagException;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -96,7 +97,9 @@ class DataTamperingResistanceTest extends BaseE2ETest {
     @ParameterizedTest(name = "{arguments}")
     @ValueSource(strings = {FILENAME, DIR_AND_FILENAME, DIR_DIR_AND_FILENAME})
     @SneakyThrows
-    void testPrivateDocumentPathTamperResistance(String path) {
+    void testPrivateDocumentPathTamperResistance(String origpath) {
+        String path = origpath.replaceAll("/", File.pathSeparator);
+
         try (OutputStream os = writeToPrivate.write(WriteRequest.forDefaultPrivate(jane, path))) {
             os.write(FILE_TEXT.getBytes(StandardCharsets.UTF_8));
         }

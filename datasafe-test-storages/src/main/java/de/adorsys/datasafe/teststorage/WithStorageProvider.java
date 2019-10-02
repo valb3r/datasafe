@@ -33,7 +33,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -118,6 +117,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
             return null;
         });
     }
+
 
     @AfterEach
     @SneakyThrows

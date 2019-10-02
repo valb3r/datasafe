@@ -53,9 +53,10 @@ class SimpleAdapterFeatureTest {
         simpleDatasafeService.storeDocument(userIDAuth, document);
 
         AbsoluteLocation<PrivateResource> rootLocation = getPrivateResourceAbsoluteLocation();
-        Assertions.assertEquals(0, simpleDatasafeService.getStorageService().list(rootLocation).filter(el -> el.location().toASCIIString().contains(path)).count());
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = simpleDatasafeService.getStorageService().list(rootLocation)) {
+            Assertions.assertEquals(0, stream.filter(el -> el.location().toASCIIString().contains(path)).count());
+        }
         simpleDatasafeService.destroyUser(userIDAuth);
-        simpleDatasafeService.cleanupDb();
     }
 
     @Test
@@ -80,7 +81,6 @@ class SimpleAdapterFeatureTest {
             }
         }
         simpleDatasafeService.destroyUser(userIDAuth);
-        simpleDatasafeService.cleanupDb();
     }
 
 
@@ -107,7 +107,6 @@ class SimpleAdapterFeatureTest {
             }
         }
         simpleDatasafeService.destroyUser(userIDAuth);
-        simpleDatasafeService.cleanupDb();
     }
 
     @Nullable
@@ -124,4 +123,5 @@ class SimpleAdapterFeatureTest {
         }
         return rootLocation;
     }
+
 }
