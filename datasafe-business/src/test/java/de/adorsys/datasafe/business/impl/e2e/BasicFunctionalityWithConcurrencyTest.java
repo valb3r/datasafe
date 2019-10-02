@@ -29,7 +29,9 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,7 +45,6 @@ import java.util.stream.Stream;
 
 import static de.adorsys.datasafe.types.api.actions.ListRequest.forDefaultPrivate;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.compress.utils.IOUtils.closeQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,7 +62,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     private static int NUMBER_OF_TEST_FILES = 5;
     private static int EXPECTED_NUMBER_OF_FILES_PER_USER = NUMBER_OF_TEST_FILES;
 
-    private static final String TEST_FILENAME = "/test.txt";
+    private static final String TEST_FILENAME = File.pathSeparator + "test.txt";
 
     @TempDir
     protected Path tempTestFileFolder;
@@ -109,6 +110,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
         CountDownLatch finishHoldingLatch = new CountDownLatch(NUMBER_OF_TEST_USERS * NUMBER_OF_TEST_FILES);
 
         String checksumOfOriginTestFile;
+        log.trace("*** get checksum of "+testFile+" ***");
         try(FileInputStream input = new FileInputStream(new File(testFile))) {
             checksumOfOriginTestFile = checksum(input);
         }
@@ -153,11 +155,15 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
         metricCollector.setStorageType(storage.getClass().getSimpleName());
         metricCollector.setNumberOfThreads(poolSize);
         metricCollector.writeToJSON();//json files in target folder
+
+        deleteTestFile(testFile);
+
     }
 
     private List<AbsoluteLocation<ResolvedResource>> listAllPrivateFiles(UserIDAuth user) {
-        return listPrivate.list(
-                forDefaultPrivate(user, "./")).collect(Collectors.toList());
+        try (Stream<AbsoluteLocation<ResolvedResource>> stream = listPrivate.list(forDefaultPrivate(user, "./"))) {
+            return stream.collect(Collectors.toList());
+        }
     }
 
     private void createFileForUserParallelly(ThreadPoolExecutor executor, CountDownLatch holdingLatch,
@@ -188,6 +194,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
 
                     log.debug("Save file in {} ms", durationOfSavingFile);
                 } catch (InterruptedException e) {
+                    Arrays.stream(e.getStackTrace()).forEach(el -> log.error(el.toString()));
                     fail(e);
                 }
             });
@@ -197,12 +204,13 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     private String calculateDecryptedContentChecksum(UserIDAuth user,
                                                      AbsoluteLocation<ResolvedResource> item) {
         try {
-            InputStream decryptedFileStream = readFromPrivate.read(
-                    ReadRequest.forPrivate(user, item.getResource().asPrivate()));
-            String checksumOfDecryptedTestFile = checksum(decryptedFileStream);
-            decryptedFileStream.close();
-            return checksumOfDecryptedTestFile;
+            try (InputStream decryptedFileStream = readFromPrivate.read(
+                    ReadRequest.forPrivate(user, item.getResource().asPrivate()))) {
+                String checksumOfDecryptedTestFile = checksum(decryptedFileStream);
+                return checksumOfDecryptedTestFile;
+            }
         } catch (IOException e) {
+            Arrays.stream(e.getStackTrace()).forEach(el -> log.error(el.toString()));
             fail(e);
         }
 
@@ -221,6 +229,16 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     }
 
     private static void generateTestFile(String testFile, int testFileSizeInBytes) {
+        log.trace("*** generate "+testFile+" ***");
+
+        File directory = new File(testFile).getParentFile();
+        // in previous version file handles were not closed directories were not removed
+        // and following tests were able to reuse directory. Now file handles are closed
+        // and all files including directory are deleted.
+        if (!directory.exists()) {
+            log.trace(directory + " does not exist. will be created now");
+            directory.mkdir();
+        }
         try (RandomAccessFile originTestFile = new RandomAccessFile(testFile, "rw")) {
             MappedByteBuffer out = originTestFile.getChannel()
                     .map(FileChannel.MapMode.READ_WRITE, 0, testFileSizeInBytes);
@@ -229,9 +247,24 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
                 out.put((byte) 'x');
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("generateTestFile: " + e.getMessage());
         }
 
+    }
+
+    private static void deleteTestFile(String testFile) {
+        log.trace("*** delete " + testFile + " ***");
+        File file = new File(testFile);
+        if (file.exists()) {
+            boolean ok = file.delete();
+            if (!ok) {
+                log.error("can not delete " + testFile);
+            } else {
+                log.debug("deleted testfile " + testFile);
+            }
+        } else {
+            log.error("testfile did not exist:" + testFile);
+        }
     }
 
     @ValueSource
@@ -272,15 +305,13 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     protected void writeDataToFileForUser(UserIDAuth john, String filePathForWriting, String filePathForReading,
                                           CountDownLatch latch) {
         try {
-            OutputStream write = writeToPrivate.write(WriteRequest.forDefaultPrivate(john, filePathForWriting));
-
-            FileInputStream fis = new FileInputStream(filePathForReading);
-            ByteStreams.copy(fis, write);
-
-            closeQuietly(fis);
-            closeQuietly(write);
+            try (OutputStream write = writeToPrivate.write(WriteRequest.forDefaultPrivate(john, filePathForWriting))) {
+                try (FileInputStream fis = new FileInputStream(filePathForReading)) {
+                    ByteStreams.copy(fis, write);
+                }
+            }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            log.error("writeDataToFileForUser:" + e.getMessage(), e);
         }
 
         latch.countDown();
