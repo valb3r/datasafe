@@ -134,8 +134,8 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
 
     @Test
     void listOnNonExisting() {
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
-            assertThat(stream).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> lsStorageService = storageService.list(root)) {
+            assertThat(lsStorageService).isEmpty();
         }
     }
 
