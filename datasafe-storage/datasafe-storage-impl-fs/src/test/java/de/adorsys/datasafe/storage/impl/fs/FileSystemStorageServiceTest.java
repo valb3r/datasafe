@@ -56,7 +56,7 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
         Path nonExistingFile = storageDir.resolve(UUID.randomUUID().toString());
         AbsoluteLocation<PrivateResource> nonExistingFileLocation = new AbsoluteLocation<>(BasePrivateResource.forPrivate(nonExistingFile.toUri()));
         try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(nonExistingFileLocation)) {
-            assertThat(stream.collect(Collectors.toList())).isEmpty();
+            assertThat(stream).isEmpty();
         }
     }
 
@@ -109,14 +109,14 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
         Path dotFile = storageDir.resolve(".dotfile");
         AbsoluteLocation<PrivateResource> newFileLocation = new AbsoluteLocation<>(BasePrivateResource.forPrivate(dotFile.toUri()));
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
-            assertThat(stream.collect(Collectors.toList())).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> lsStorageService = storageService.list(root)) {
+            assertThat(lsStorageService).isEmpty();
         }
-        try (OutputStream os = storageService.write(WithCallback.noCallback(newFileLocation))) {
-            os.write(MESSAGE.getBytes());
+        try (OutputStream osStorageService = storageService.write(WithCallback.noCallback(newFileLocation))) {
+            osStorageService.write(MESSAGE.getBytes());
         }
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
-            assertThat(stream.collect(Collectors.toList())).isNotEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> lsStorageService = storageService.list(root)) {
+            assertThat(lsStorageService).isNotEmpty();
         }
     }
 
@@ -124,8 +124,8 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
     void list() {
         createFileWithMessage();
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
-            assertThat(stream)
+        try (Stream<AbsoluteLocation<ResolvedResource>> lsStorageService = storageService.list(root)) {
+            assertThat(lsStorageService)
                     .hasSize(1)
                     .extracting(AbsoluteLocation::location)
                     .asString().contains(FILE);

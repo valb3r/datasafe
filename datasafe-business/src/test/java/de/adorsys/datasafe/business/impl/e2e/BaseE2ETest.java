@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +53,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseE2ETest extends WithStorageProvider {
-    protected Charset THE_CHARSET=Charset.forName("UTF-8");
 
     protected static final String PRIVATE_COMPONENT = "private";
     protected static final String PRIVATE_FILES_COMPONENT = PRIVATE_COMPONENT + "/files";
@@ -111,7 +111,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
     @SneakyThrows
     protected void writeDataToPrivate(UserIDAuth auth, String path, String data) {
         try (OutputStream stream = writeToPrivate.write(WriteRequest.forDefaultPrivate(auth, path))) {
-            stream.write(data.getBytes(THE_CHARSET));
+            stream.write(data.getBytes(StandardCharsets.UTF_8));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
@@ -122,7 +122,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             WriteRequest.forDefaultPublic(Collections.singleton(auth.getUserID()), path)
         )) {
 
-            stream.write(data.getBytes(THE_CHARSET));
+            stream.write(data.getBytes(StandardCharsets.UTF_8));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
@@ -149,7 +149,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray(), THE_CHARSET);
+        String data = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         log.info("{} has {} in PRIVATE", user, Obfuscate.secure(data));
         return data;
     }
@@ -166,7 +166,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray(), THE_CHARSET );
+        String data = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         log.info("{} has {} in INBOX", user, Obfuscate.secure(data));
         return data;
     }

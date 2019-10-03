@@ -31,7 +31,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -110,7 +109,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
         CountDownLatch finishHoldingLatch = new CountDownLatch(NUMBER_OF_TEST_USERS * NUMBER_OF_TEST_FILES);
 
         String checksumOfOriginTestFile;
-        log.trace("*** get checksum of "+testFile+" ***");
+        log.trace("*** get checksum of {} ***", testFile);
         try(FileInputStream input = new FileInputStream(new File(testFile))) {
             checksumOfOriginTestFile = checksum(input);
         }
@@ -157,12 +156,11 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
         metricCollector.writeToJSON();//json files in target folder
 
         deleteTestFile(testFile);
-
     }
 
     private List<AbsoluteLocation<ResolvedResource>> listAllPrivateFiles(UserIDAuth user) {
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = listPrivate.list(forDefaultPrivate(user, "./"))) {
-            return stream.collect(Collectors.toList());
+        try (Stream<AbsoluteLocation<ResolvedResource>> lsPrivate = listPrivate.list(forDefaultPrivate(user, "./"))) {
+            return lsPrivate.collect(Collectors.toList());
         }
     }
 
@@ -194,7 +192,6 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
 
                     log.debug("Save file in {} ms", durationOfSavingFile);
                 } catch (InterruptedException e) {
-                    Arrays.stream(e.getStackTrace()).forEach(el -> log.error(el.toString()));
                     fail(e);
                 }
             });
@@ -210,7 +207,6 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
                 return checksumOfDecryptedTestFile;
             }
         } catch (IOException e) {
-            Arrays.stream(e.getStackTrace()).forEach(el -> log.error(el.toString()));
             fail(e);
         }
 

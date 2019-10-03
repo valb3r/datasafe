@@ -110,8 +110,8 @@ class DataTamperingResistanceTest extends BaseE2ETest {
         assertThrows(
                 UnauthenticCiphertextException.class,
                 () -> {
-                    try (Stream<AbsoluteLocation<ResolvedResource>> stream = listPrivate.list(ListRequest.forDefaultPrivate(jane, ""))) {
-                        stream.forEach(it -> log.info("{}", it.location())); // consume stream
+                    try (Stream<AbsoluteLocation<ResolvedResource>> lsPrivate = listPrivate.list(ListRequest.forDefaultPrivate(jane, ""))) {
+                        lsPrivate.forEach(it -> log.info("{}", it.location())); // consume ls
                     }
                 }
         );
