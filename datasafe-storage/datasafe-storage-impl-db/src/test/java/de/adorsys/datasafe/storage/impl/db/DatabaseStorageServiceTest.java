@@ -73,14 +73,14 @@ class DatabaseStorageServiceTest extends BaseMockitoTest {
     void list() {
         writeData(OTHER_FILE, MESSAGE);
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(FILE)) {
-            assertThat(stream)
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService.list(FILE)) {
+            assertThat(ls)
                     .extracting(it -> it.getResource().location().asString())
                     .containsOnly("jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt");
         }
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(ROOT)) {
-            assertThat(stream)
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService.list(ROOT)) {
+            assertThat(ls)
                     .extracting(it -> it.getResource().location().asString())
                     .containsOnly(
                             "jdbc://localhost:9999/h2:mem:test/private_profiles/path/hello.txt",

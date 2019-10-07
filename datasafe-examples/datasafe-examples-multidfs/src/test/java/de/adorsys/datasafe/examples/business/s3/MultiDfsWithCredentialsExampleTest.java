@@ -68,7 +68,6 @@ class MultiDfsWithCredentialsExampleTest {
     @BeforeAll
     static void startup() {
         // on windows this is required
-        log.debug("Add Bouncy Castle to test");
         Security.addProvider(new BouncyCastleProvider());
 
         // Create all required minio-backed S3 buckets:

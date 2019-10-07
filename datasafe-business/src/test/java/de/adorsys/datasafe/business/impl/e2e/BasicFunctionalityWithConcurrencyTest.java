@@ -29,7 +29,6 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -61,7 +60,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     private static int NUMBER_OF_TEST_FILES = 5;
     private static int EXPECTED_NUMBER_OF_FILES_PER_USER = NUMBER_OF_TEST_FILES;
 
-    private static final String TEST_FILENAME = File.pathSeparator + "test.txt";
+    private static final String TEST_FILENAME = "test.txt";
 
     @TempDir
     protected Path tempTestFileFolder;
@@ -100,7 +99,7 @@ class BasicFunctionalityWithConcurrencyTest extends BaseE2ETest {
     void writeToPrivateListPrivateInDifferentThreads(WithStorageProvider.StorageDescriptor descriptor, int size, int poolSize) {
         init(descriptor);
 
-        String testFile = tempTestFileFolder.toString() + TEST_FILENAME;
+        String testFile = tempTestFileFolder.resolve(TEST_FILENAME).toString();
         generateTestFile(testFile, size);
 
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize);

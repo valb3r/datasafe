@@ -50,14 +50,20 @@ class CleanupDbTest extends WithStorageProvider {
                 new DocumentContent(content.getBytes())));
 
         // (1 keystore + 1 pub key + 1 file) * 2
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
-            assertEquals(6,stream.count());
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls =
+                     descriptor.getStorageService().get()
+                             .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertEquals(6, ls.count());
         }
 
         simpleDatasafeService.cleanupDb();
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
-            assertEquals(0,stream.count());
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls =
+                     descriptor.getStorageService().get()
+                             .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertEquals(0, ls.count());
         }
     }
 }

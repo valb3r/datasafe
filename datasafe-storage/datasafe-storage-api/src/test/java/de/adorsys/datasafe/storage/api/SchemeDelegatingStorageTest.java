@@ -3,16 +3,12 @@ package de.adorsys.datasafe.storage.api;
 import de.adorsys.datasafe.types.api.callback.ResourceWriteCallback;
 import de.adorsys.datasafe.types.api.resource.AbsoluteLocation;
 import de.adorsys.datasafe.types.api.resource.BasePrivateResource;
-import de.adorsys.datasafe.types.api.resource.ResolvedResource;
 import de.adorsys.datasafe.types.api.resource.WithCallback;
 import de.adorsys.datasafe.types.api.shared.BaseMockitoTest;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -50,22 +46,16 @@ class SchemeDelegatingStorageTest extends BaseMockitoTest {
 
     @Test
     void listDelegates() {
-        try (Stream<AbsoluteLocation<ResolvedResource>> list = tested.list(locationExists)) {
+        tested.list(locationExists);
 
-        }
-
-        try (Stream<AbsoluteLocation<ResolvedResource>> list = verify(service).list(locationExists)) {
-
-        }
+        verify(service).list(locationExists);
     }
 
     @Test
-    @SneakyThrows
     void readDelegates() {
-        try (InputStream read = tested.read(locationExists)) {
-            try (InputStream read1 = verify(service).read(locationExists)) {
-            }
-        }
+        tested.read(locationExists);
+
+        verify(service).read(locationExists);
     }
 
     @Test

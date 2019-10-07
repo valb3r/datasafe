@@ -67,10 +67,8 @@ class SimpleDatasafeAdapter043CompatTest extends BaseMockitoTest {
         // validate folder structure
         assertThat(Dirs.walk(dfsRoot, 1)).containsExactlyInAnyOrder("profiles", "users");
         assertThat(Dirs.walk(dfsRoot.resolve("profiles")))
-                .extracting(string -> string.replaceAll("\\\\","/"))
                 .containsExactlyInAnyOrder("private", "public", "private/peter", "public/peter");
         assertThat(Dirs.walk(dfsRoot.resolve("users"), 3))
-                .extracting(string -> string.replaceAll("\\\\","/"))
                 .containsExactlyInAnyOrder(
                         "peter",
                         "peter/private",

@@ -116,8 +116,9 @@ public class ProfileRemovalServiceImpl implements ProfileRemovalService {
             return;
         }
 
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = listService.list(access.privateAccessFor(userID, location.getResource()))) {
-            stream.forEach(removeService::remove);
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls =
+                     listService.list(access.privateAccessFor(userID, location.getResource()))) {
+            ls.forEach(removeService::remove);
         }
     }
 }

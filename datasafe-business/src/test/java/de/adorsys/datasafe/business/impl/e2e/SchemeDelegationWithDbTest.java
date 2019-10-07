@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,7 +93,6 @@ class SchemeDelegationWithDbTest extends WithStorageProvider {
         assertThat(Files.walk(fsPath))
             .extracting(it -> fsPath.relativize(it))
             .extracting(Path::toString)
-                .extracting(string -> string.replaceAll("\\\\","/"))
             .containsExactlyInAnyOrder(
                 "",
                 "users",
@@ -103,14 +103,13 @@ class SchemeDelegationWithDbTest extends WithStorageProvider {
                 "users/john/private/keystore",
                 "users/john/private/files",
                 "users/john/private/files/SIV",
-                fsPath.relativize(encryptedFile).toString().replaceAll("\\\\","/")
+                fsPath.relativize(encryptedFile).toString()
             );
     }
 
-    private Stream<String> listDb(String path) {
+    private List<String> listDb(String path) {
         try (Stream<AbsoluteLocation<ResolvedResource>> stream = db.list(BasePrivateResource.forAbsolutePrivate(URI.create(path)))){
-            return stream.map(it -> it.location().asURI().toString());
-
+            return stream.map(it -> it.location().asURI().toString()).collect(Collectors.toList());
         }
     }
 

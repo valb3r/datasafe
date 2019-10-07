@@ -248,11 +248,13 @@ public class SimpleDatasafeServiceImpl implements SimpleDatasafeService {
 
     @Override
     public void cleanupDb() {
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService
                 .list(new AbsoluteLocationWithCapability<>(
-                        BasePrivateResource.forPrivate(systemRoot), StorageCapability.LIST_RETURNS_DIR)
-                )) {
-            stream.forEach(storageService::remove);
+                        BasePrivateResource.forPrivate(systemRoot),
+                        StorageCapability.LIST_RETURNS_DIR)
+                )
+        ) {
+            ls.forEach(storageService::remove);
         }
     }
 }

@@ -77,8 +77,10 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
         mystart();
 
         // SimpleDatasafeAdapter does not use user profile json files, so only keystore and pubkeys should exist:
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
-            assertThat(stream).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = descriptor.getStorageService().get()
+                .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertThat(ls).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
                     .containsExactlyInAnyOrder(
                             "users/peter/public/pubkeys",
                             "users/peter/private/keystore"
@@ -95,8 +97,10 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
         mystart();
 
         // SimpleDatasafeAdapter does not use user profile json files, so only keystore and pubkeys should exist:
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
-            assertThat(stream).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = descriptor.getStorageService().get()
+                .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertThat(ls).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
                     .containsExactlyInAnyOrder(
                             "users/peter/public/pubkeys",
                             "users/peter/private/keystore"

@@ -278,7 +278,11 @@ public class VersionedDataTest extends BaseE2ETest {
 
     private Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version> firstOfVersionedListRoot(
             UserIDAuth owner) {
-        try(Stream<Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version>> ls = versionedDocusafeServices.latestPrivate().listWithDetails(ListRequest.forDefaultPrivate(owner, "./"))) {
+        try (Stream<Versioned<AbsoluteLocation<PrivateResource>, ResolvedResource, Version>> ls =
+                     versionedDocusafeServices
+                             .latestPrivate()
+                             .listWithDetails(ListRequest.forDefaultPrivate(owner, "./"))
+        ) {
             return ls.findFirst().orElseThrow(() -> new IllegalStateException("Empty directory"));
         }
     }

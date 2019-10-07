@@ -56,8 +56,11 @@ class DFSRelativeToRootProfileTest extends WithStorageProvider {
         simpleDatasafeService.destroyUser(userIDAuth);
 
         // Everything is cleaned up:
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = descriptor.getStorageService().get().list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))) {
-            assertThat(stream).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls =
+                     descriptor.getStorageService().get()
+                             .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertThat(ls).isEmpty();
         }
     }
 }

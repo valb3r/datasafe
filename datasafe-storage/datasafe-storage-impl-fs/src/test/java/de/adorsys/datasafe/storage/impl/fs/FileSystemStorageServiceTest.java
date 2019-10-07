@@ -15,7 +15,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,8 +45,8 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
     @Test
     void objectExists() {
         createFileWithMessage();
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(root)) {
-            assertThat(storageService.objectExists(stream.findFirst().get())).isTrue();
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService.list(root)) {
+            assertThat(storageService.objectExists(ls.findFirst().get())).isTrue();
         }
     }
 
@@ -55,8 +54,8 @@ class FileSystemStorageServiceTest extends BaseMockitoTest {
     void listEmpty() {
         Path nonExistingFile = storageDir.resolve(UUID.randomUUID().toString());
         AbsoluteLocation<PrivateResource> nonExistingFileLocation = new AbsoluteLocation<>(BasePrivateResource.forPrivate(nonExistingFile.toUri()));
-        try (Stream<AbsoluteLocation<ResolvedResource>> stream = storageService.list(nonExistingFileLocation)) {
-            assertThat(stream).isEmpty();
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService.list(nonExistingFileLocation)) {
+            assertThat(ls).isEmpty();
         }
     }
 
