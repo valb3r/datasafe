@@ -37,6 +37,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.util.Arrays;
@@ -66,12 +67,15 @@ class MultiDfsWithCredentialsExampleTest {
 
     @BeforeAll
     static void startup() {
+        // on windows this is required
+        Security.addProvider(new BouncyCastleProvider());
+
         // Create all required minio-backed S3 buckets:
         Arrays.stream(MinioContainerId.values()).forEach(it -> {
             GenericContainer minio = createAndStartMinio(it.getAccessKey(), it.getSecretKey());
             minios.put(it, minio);
 
-            String endpoint = "http://127.0.0.1:" + minio.getFirstMappedPort() + "/";
+            String endpoint = getDockerUriFromOrigUri("http://127.0.0.1") + ":" + minio.getFirstMappedPort() + "/";
             endpointsByHost.put(it, endpoint + it.getBucketName() + "/");
             log.info("MINIO for {} is available at: {} with access: '{}'/'{}'", it, endpoint, it.getAccessKey(),
                     it.getSecretKey());
@@ -122,7 +126,7 @@ class MultiDfsWithCredentialsExampleTest {
                                     // bind URI that contains `directoryBucket` to directoryStorage
                                     .put(Pattern.compile(directoryBucketS3Uri + ".+"), directoryStorage)
                                     .put(
-                                        Pattern.compile("http://127.0.0.1.+"),
+                                        Pattern.compile(getDockerUriFromOrigUri("http://127.0.0.1") + ".+"),
                                         // Dynamically creates S3 client with bucket name equal to host value
                                         new UriBasedAuthStorageService(
                                             acc -> new S3StorageService(
@@ -236,5 +240,15 @@ class MultiDfsWithCredentialsExampleTest {
             super(null);
             this.delegate = new RegexAccessServiceWithStorageCredentialsImpl(storageKeyStoreOperations);
         }
+    }
+
+    @SneakyThrows
+    private static String getDockerUriFromOrigUri(String uri) {
+        String dockerhost = System.getenv("DOCKER_HOST");
+        if (dockerhost == null) {
+            return uri;
+        }
+        URI dockeruri = new URI(dockerhost);
+        return "http://" + dockeruri.getHost();
     }
 }

@@ -43,6 +43,7 @@ import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.security.UnrecoverableKeyException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Slf4j
 class MultiDFSFunctionalityTest extends BaseMockitoTest {
 
-    private static final String LOCALHOST = "http://127.0.0.1";
+    private static final String LOCALHOST = getDockerUriFromOrigUri("http://localhost");
 
     private static final String CREDENTIALS = "credentialsbucket";
     private static final String KEYSTORE = "keystorebucket";
@@ -337,5 +338,15 @@ class MultiDFSFunctionalityTest extends BaseMockitoTest {
             super(null);
             this.delegate = new RegexAccessServiceWithStorageCredentialsImpl(storageKeyStoreOperations);
         }
+    }
+
+    @SneakyThrows
+    private static String getDockerUriFromOrigUri(String uri) {
+        String dockerhost = System.getenv("DOCKER_HOST");
+        if (dockerhost == null) {
+            return uri;
+        }
+        URI dockeruri = new URI(dockerhost);
+        return "http://" + dockeruri.getHost();
     }
 }

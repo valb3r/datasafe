@@ -8,7 +8,9 @@ import de.adorsys.datasafe.simple.adapter.api.SimpleDatasafeService;
 import de.adorsys.datasafe.simple.adapter.api.types.*;
 import de.adorsys.datasafe.storage.impl.fs.FileSystemStorageService;
 import de.adorsys.datasafe.teststorage.WithStorageProvider;
+import de.adorsys.datasafe.types.api.resource.AbsoluteLocation;
 import de.adorsys.datasafe.types.api.resource.BasePrivateResource;
+import de.adorsys.datasafe.types.api.resource.ResolvedResource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -43,7 +45,7 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
     }
 
     private static Stream<StorageDescriptor> storages() {
-            return allDefaultStorages();
+        return allDefaultStorages();
     }
 
     @BeforeEach
@@ -68,6 +70,26 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
     }
 
     @ParameterizedTest
+    @MethodSource("minioOnly")
+    @SneakyThrows
+    void justCreateAndDeleteUserForMinioOnly(WithStorageProvider.StorageDescriptor descriptor) {
+        myinit(descriptor);
+        mystart();
+
+        // SimpleDatasafeAdapter does not use user profile json files, so only keystore and pubkeys should exist:
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = descriptor.getStorageService().get()
+                .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertThat(ls).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
+                    .containsExactlyInAnyOrder(
+                            "users/peter/public/pubkeys",
+                            "users/peter/private/keystore"
+                    );
+        }
+        log.info("test create user and delete user with " + descriptor.getName());
+    }
+
+    @ParameterizedTest
     @MethodSource("storages")
     @SneakyThrows
     void justCreateAndDeleteUser(WithStorageProvider.StorageDescriptor descriptor) {
@@ -75,14 +97,15 @@ class SimpleDatasafeAdapterTest extends WithStorageProvider {
         mystart();
 
         // SimpleDatasafeAdapter does not use user profile json files, so only keystore and pubkeys should exist:
-        assertThat(descriptor.getStorageService().get().list(
-                BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
-        ).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
-                .containsExactlyInAnyOrder(
-                        "users/peter/public/pubkeys",
-                        "users/peter/private/keystore"
-                );
-
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = descriptor.getStorageService().get()
+                .list(BasePrivateResource.forAbsolutePrivate(descriptor.getLocation()))
+        ) {
+            assertThat(ls).extracting(it -> descriptor.getLocation().relativize(it.location()).asString())
+                    .containsExactlyInAnyOrder(
+                            "users/peter/public/pubkeys",
+                            "users/peter/private/keystore"
+                    );
+        }
         log.info("test create user and delete user with " + descriptor.getName());
     }
 

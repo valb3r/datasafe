@@ -25,10 +25,7 @@ import de.adorsys.datasafe.types.api.actions.ListRequest;
 import de.adorsys.datasafe.types.api.actions.ReadRequest;
 import de.adorsys.datasafe.types.api.actions.RemoveRequest;
 import de.adorsys.datasafe.types.api.actions.WriteRequest;
-import de.adorsys.datasafe.types.api.resource.AbsoluteLocationWithCapability;
-import de.adorsys.datasafe.types.api.resource.BasePrivateResource;
-import de.adorsys.datasafe.types.api.resource.PrivateResource;
-import de.adorsys.datasafe.types.api.resource.StorageCapability;
+import de.adorsys.datasafe.types.api.resource.*;
 import de.adorsys.datasafe.types.api.utils.ExecutorServiceUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +37,7 @@ import java.net.URI;
 import java.nio.file.FileSystems;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class SimpleDatasafeServiceImpl implements SimpleDatasafeService {
@@ -81,7 +79,6 @@ public class SimpleDatasafeServiceImpl implements SimpleDatasafeService {
             lsf.add("url             : " + amazonS3DFSCredentials.getUrl());
             lsf.add("region          : " + amazonS3DFSCredentials.getRegion());
             lsf.add("path encryption : " + SwitchablePathEncryptionImpl.checkIsPathEncryptionToUse());
-            lsf.add("region          : " + amazonS3DFSCredentials.getRegion());
             lsf.add("no https        : " + amazonS3DFSCredentials.isNoHttps());
             lsf.add("threadpool size : " + amazonS3DFSCredentials.getThreadPoolSize());
             log.info(lsf.toString());
@@ -251,9 +248,13 @@ public class SimpleDatasafeServiceImpl implements SimpleDatasafeService {
 
     @Override
     public void cleanupDb() {
-        storageService
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls = storageService
                 .list(new AbsoluteLocationWithCapability<>(
-                        BasePrivateResource.forPrivate(systemRoot), StorageCapability.LIST_RETURNS_DIR)
-                ).forEach(storageService::remove);
+                        BasePrivateResource.forPrivate(systemRoot),
+                        StorageCapability.LIST_RETURNS_DIR)
+                )
+        ) {
+            ls.forEach(storageService::remove);
+        }
     }
 }

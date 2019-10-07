@@ -32,6 +32,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -62,7 +63,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     private static String minioAccessKeyID = "admin";
     private static String minioSecretAccessKey = "password";
     private static String minioRegion = "eu-central-1";
-    private static String minioUrl = "http://localhost";
+    private static String minioUrl = getDockerUriFromOrigUri("http://localhost");
     private static String minioMappedUrl;
 
     // Note that CEPH is used to test bucket-level versioning, so you will get versioned bucket:
@@ -102,10 +103,12 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         WithStorageProvider.tempDir = tempDir;
 
         minioStorage = Suppliers.memoize(() -> {
+            startMinio();
             return null;
         });
 
         cephStorage = Suppliers.memoize(() -> {
+            startCeph();
             return null;
         });
 
@@ -114,6 +117,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
             return null;
         });
     }
+
 
     @AfterEach
     @SneakyThrows
@@ -157,7 +161,8 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     @ValueSource
     protected static Stream<StorageDescriptor> allLocalDefaultStorages() {
         return Stream.of(
-                fs()
+                fs(),
+                minio()
                 /* No CEPH here because it is quite slow*/
         ).filter(Objects::nonNull);
     }
@@ -165,7 +170,9 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     @ValueSource
     protected static Stream<StorageDescriptor> allLocalStorages() {
         return Stream.of(
-                fs()
+                fs(),
+                minio(),
+                cephVersioned()
         ).filter(Objects::nonNull);
     }
 
@@ -173,6 +180,7 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     protected static Stream<StorageDescriptor> allDefaultStorages() {
         return Stream.of(
                 fs(),
+                minio(),
                 s3()
         ).filter(Objects::nonNull);
     }
@@ -181,7 +189,16 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
     protected static Stream<StorageDescriptor> allStorages() {
         return Stream.of(
                 fs(),
+                minio(),
+                cephVersioned(),
                 s3()
+        ).filter(Objects::nonNull);
+    }
+
+    @ValueSource
+    protected static Stream<StorageDescriptor> minioOnly() {
+        return Stream.of(
+                minio()
         ).filter(Objects::nonNull);
     }
 
@@ -195,6 +212,38 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         );
     }
 
+    protected static StorageDescriptor minio() {
+        return new StorageDescriptor(
+                StorageDescriptorName.MINIO,
+                () -> {
+                    minioStorage.get();
+                    return new S3StorageService(minio, primaryBucket, EXECUTOR_SERVICE);
+                },
+                new Uri("s3://" + primaryBucket + "/" + bucketPath + "/"),
+                minioAccessKeyID,
+                minioSecretAccessKey,
+                minioRegion,
+                primaryBucket + "/" + bucketPath
+        );
+    }
+
+    protected static StorageDescriptor cephVersioned() {
+        if (skipCeph()) {
+            return null;
+        }
+        return new StorageDescriptor(
+                StorageDescriptorName.CEPH,
+                () -> {
+                    cephStorage.get();
+                    return new S3StorageService(ceph, primaryBucket, EXECUTOR_SERVICE);
+                },
+                new Uri("s3://" + primaryBucket + "/" + bucketPath + "/"),
+                cephAccessKeyID,
+                cephSecretAccessKey,
+                cephRegion,
+                primaryBucket + "/" + bucketPath
+        );
+    }
 
     private static boolean skipCeph() {
         String value = System.getProperty(SKIP_CEPH);
@@ -403,5 +452,16 @@ public abstract class WithStorageProvider extends BaseMockitoTest {
         MINIO,
         CEPH,
         AMAZON
+    }
+
+
+    @SneakyThrows
+    private static String getDockerUriFromOrigUri(String uri) {
+        String dockerhost = System.getenv("DOCKER_HOST");
+        if (dockerhost == null) {
+            return uri;
+        }
+        URI dockeruri = new URI(dockerhost);
+        return "http://" + dockeruri.getHost();
     }
 }

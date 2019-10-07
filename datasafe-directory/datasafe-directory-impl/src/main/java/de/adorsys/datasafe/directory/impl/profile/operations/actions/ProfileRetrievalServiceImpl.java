@@ -86,4 +86,5 @@ public class ProfileRetrievalServiceImpl implements ProfileRetrievalService {
             return serde.fromJson(new String(ByteStreams.toByteArray(is)), clazz);
         }
     }
+
 }

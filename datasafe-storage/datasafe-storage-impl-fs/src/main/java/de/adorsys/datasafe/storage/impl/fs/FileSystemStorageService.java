@@ -88,7 +88,6 @@ public class FileSystemStorageService implements StorageService {
     public OutputStream write(WithCallback<AbsoluteLocation, ? extends ResourceWriteCallback> locationWithCallback) {
         log.debug("Write file request: {}", locationWithCallback.getWrapped().location());
         Path filePath = resolve(locationWithCallback.getWrapped().location().getRawPath(), true);
-        log.debug("Write file: {}", locationWithCallback.getWrapped().location());
         return MoreFiles.asByteSink(filePath, StandardOpenOption.CREATE).openStream();
     }
 

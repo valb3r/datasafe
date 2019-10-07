@@ -18,6 +18,7 @@ import de.adorsys.datasafe.storage.api.actions.StorageRemoveService;
 import de.adorsys.datasafe.types.api.context.annotations.RuntimeDelegate;
 import de.adorsys.datasafe.types.api.resource.AbsoluteLocation;
 import de.adorsys.datasafe.types.api.resource.PrivateResource;
+import de.adorsys.datasafe.types.api.resource.ResolvedResource;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -115,8 +116,9 @@ public class ProfileRemovalServiceImpl implements ProfileRemovalService {
             return;
         }
 
-        listService.list(
-                access.privateAccessFor(userID, location.getResource())
-        ).forEach(removeService::remove);
+        try (Stream<AbsoluteLocation<ResolvedResource>> ls =
+                     listService.list(access.privateAccessFor(userID, location.getResource()))) {
+            ls.forEach(removeService::remove);
+        }
     }
 }

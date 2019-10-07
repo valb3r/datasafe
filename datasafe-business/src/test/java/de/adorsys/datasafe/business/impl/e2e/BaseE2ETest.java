@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -109,7 +110,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
     @SneakyThrows
     protected void writeDataToPrivate(UserIDAuth auth, String path, String data) {
         try (OutputStream stream = writeToPrivate.write(WriteRequest.forDefaultPrivate(auth, path))) {
-            stream.write(data.getBytes());
+            stream.write(data.getBytes(UTF_8));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
@@ -120,7 +121,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             WriteRequest.forDefaultPublic(Collections.singleton(auth.getUserID()), path)
         )) {
 
-            stream.write(data.getBytes());
+            stream.write(data.getBytes(UTF_8));
         }
         log.info("File {} of user {} saved to {}", Obfuscate.secure(data), auth, Obfuscate.secure(path, "/"));
     }
@@ -147,7 +148,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray());
+        String data = new String(outputStream.toByteArray(), UTF_8);
         log.info("{} has {} in PRIVATE", user, Obfuscate.secure(data));
         return data;
     }
@@ -164,7 +165,7 @@ public abstract class BaseE2ETest extends WithStorageProvider {
             ByteStreams.copy(dataStream, outputStream);
         }
 
-        String data = new String(outputStream.toByteArray());
+        String data = new String(outputStream.toByteArray(), UTF_8);
         log.info("{} has {} in INBOX", user, Obfuscate.secure(data));
         return data;
     }
